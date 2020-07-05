@@ -1,37 +1,148 @@
-.App {
-  text-align: center;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+a {
+  text-decoration: none;
+  color: inherit;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+.hover:hover {
+  color: var(--green);
+}
+
+@keyframes shine {
+  to {
+    background-position: 100% 100%;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.shine {
+  animation: shine 1s linear infinite;
+  animation-direction: alternate;
+}
+
+.main-content {
+  background-color: #eee;
+  width: 80vw;
+  padding: 5rem 3rem;
+  height: inherit;
   display: flex;
   flex-direction: column;
+}
+
+.App {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  flex-direction: column;
+  /* min-height: 100vh; */
+  min-height: 100vh;
 }
 
-.App-link {
-  color: #61dafb;
+.register-container.change-order {
+  order: 1;
+}
+/* .register-container:nth-child(1) {
+  opacity: 0;
+  transition: opacity 0.5s;
+  animation-name: phaseIn;
+  animation-duration: 0.3s;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+} */
+.register-container:not(.change-order) {
+  position: relative;
+  opacity: 0;
+  right: -50%;
+  transition: all 0.5s;
+  animation-name: phaseIn;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+@keyframes phaseIn {
+  to {
+    opacity: 1;
+    right: 0%;
   }
+}
+
+@keyframes messageIn {
+  0% {
+    transform: translate(0%, -500%);
+  }
+  5% {
+    transform: translate(0%, -250%);
+  }
+  10% {
+    transform: translate(0%, 0%);
+  }
+  90% {
+    transform: translate(0%, 0%);
+  }
+  98% {
+    transform: translate(-50%, 0%);
+  }
+  100% {
+    transform: translate(150%, 0%);
+  }
+}
+/* @keyframes messageIn {
+  0% {
+    transform: translate(0%, -100%);
+  }
+  5% {
+    transform: translate(0%, -50%);
+  }
+  10% {
+    transform: translate(0%, 100%);
+  }
+  90% {
+    transform: translate(0%, 100%);
+  }
+  98% {
+    transform: translate(-50%, 100%);
+  }
+  100% {
+    transform: translate(200%, 100%);
+  }
+} */
+
+.pause-on-hover:hover {
+  box-shadow: 0 0 10px 0 white;
+  animation-play-state: paused;
+}
+
+.loading {
+  position: relative;
+  pointer-events: none;
+  cursor: progress;
+  background-color: hsl(120, 71%, 85%) !important;
+}
+
+.loading::after {
+  font-family: "Font Awesome\ 5 Free";
+  font-weight: 900;
+  position: absolute;
+  height: fit-content;
+  top: 10%;
+  left: 110%;
+  font-size: 25px;
+  content: "\f110";
+  color: var(--green);
+  /* transform: translateY(50%); */
+  transition: transform 0.4s;
+  transform-origin: center;
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
   to {
     transform: rotate(360deg);
   }
