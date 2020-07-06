@@ -13,7 +13,27 @@ const ModalStyle = styled.section`
   z-index: 9999;
   background-color: rgba(0, 0, 0, 0.7);
   padding: 5rem;
-  & > * {
+  & button {
+    --lightness: 50%;
+    /* display: block; */
+    width: 30%;
+    text-align: center;
+    outline: none;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 0;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    background-color: hsl(120, 71%, var(--lightness));
+    margin: 40px 5px 10px;
+    color: #fff;
+    font-weight: bolder;
+    cursor: pointer;
+    &:hover {
+      --lightness: 60%;
+    }
+  }
+  & > div {
     /* margin: auto;
     border-radius: 5px;
     background-color: var(--purple);
@@ -32,6 +52,11 @@ const ModalStyle = styled.section`
     grid-auto-rows: 100%;
     /* margin: auto; */
     /* width: 70vw; */
+    border-radius: 5px;
+  }
+  & .logout-prompt {
+    background-color: var(--purple);
+    padding: 20px;
     border-radius: 5px;
   }
   & form {
@@ -78,20 +103,7 @@ const ModalStyle = styled.section`
     transform: rotate(15deg) scale(1.5);
     background-color: rgba(255, 255, 255, 0.1);
   }
-  /* & form::after {
-    position: absolute;
-    content: "";
-    height: 100%;
-    width: 100%;
-    top: 0;
-    z-index: 5;
-  } */
-  /* & form::nth-of-type(1)::after {
-    left: 50%;
-  }
-  & form::nth-of-type(2)::after {
-    left: 0%;
-  } */
+
   & .register-container {
     width: 100%;
     /* margin: auto; */
@@ -228,28 +240,6 @@ const ModalStyle = styled.section`
     }
     & label[for$="confirm-password"]::before {
       content: "\f023";
-    }
-    & button {
-      --lightness: 50%;
-      display: block;
-      width: 50%;
-      text-align: center;
-      outline: none;
-      border: none;
-      border-radius: 4px;
-      padding: 10px 0;
-      transition: all 0.2s;
-      text-transform: uppercase;
-      background-color: hsl(120, 71%, var(--lightness));
-      margin: 40px 0px 10px;
-      color: #fff;
-      font-weight: bolder;
-      cursor: pointer;
-      &:hover {
-        /* opacity: 0.5; */
-        --lightness: 60%;
-        /* background-color: var(--green); */
-      }
     }
   }
 `;

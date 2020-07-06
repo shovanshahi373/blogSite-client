@@ -25,7 +25,9 @@ const GlobalMessageStyle = styled.div((props) => ({
   backgroundColor: props.color,
   animationName: "messageIn",
   cursor: "pointer",
-  // animationDuration: "3s",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
   animationDuration: props.timer + "s",
   animationFillMode: "forwards",
   animationDelay: props.delay + "s",
@@ -77,6 +79,19 @@ const GlobalMessage = ({ items }) => {
             delay={i}
           >
             {mymsg}
+            <i
+              style={{
+                marginLeft: "10px",
+              }}
+              className={`
+            ${
+              msg.includes("SUCCESS:")
+                ? "far fa-check-circle"
+                : msg.includes("ERROR:")
+                ? "far fa-times-circle"
+                : "fas fa-info-circle"
+            }`}
+            ></i>
           </GlobalMessageStyle>
         );
       })}
