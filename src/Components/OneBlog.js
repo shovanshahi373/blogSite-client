@@ -1,62 +1,153 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import PickRandomColor from "../helpers/randomColor";
 import Paginate from "../Components/Paginate";
 import LoadingComment from "../Skeletons/LoadingComment";
 import { Link } from "react-router-dom";
+//contexts
+import { ModalTheme } from "../Contexts/modalContext";
+import { MessagesContext } from "../Contexts/GlobalMessages";
+// import {LoginContext} from "../Contexts/loginContext";
+//helpers
+import createMessage from "../helpers/createMessage";
 
 const color = PickRandomColor();
 console.log(color);
 
 const OneBlog = ({ match }) => {
+  const likeBtnRef = useRef();
+  const { registerModal, setRegisterModal } = useContext(ModalTheme);
+  // const {loggedIn} = useContext(LoginContext);
+  const { setMessages } = useContext(MessagesContext);
+  const [blogLiked, setBlogLiked] = useState(false);
   const [blog, setBlog] = useState({
     author: "",
     title: "",
     body: "",
-    upvotes: 0,
+    claps: 0,
     comments: [],
   });
   const [currentPage, setCurrentPage] = useState(1);
+  const [token, setToken] = useState(null);
   useEffect(() => {
+    const mytoken = sessionStorage.getItem("TOKEN");
+    setToken(mytoken);
     fetch(`http://localhost:5000/blogs/${match.params.bid}`)
       .then((res) => res.json())
       .then((res) => {
         console.log(res);
         setBlog(res);
-      });
+      })
+      .catch((err) => console.log(err));
   }, []);
 
-  const likeBlog = () => {
-    fetch(`http://localhost:5000/blogs/${match.params.bid}/like`)
-      .then((res) => {
-        if (res.status === 401) {
-          //redirect to login page
-          // window.location.href = "/path/to/login"
-        }
-        console.log(res.status);
-        return res.json();
+  useEffect(() => {
+    if (token !== null) {
+      //user is logged in and like request can be sent
+      fetch(`http://localhost:5000/blogs/${match.params.bid}/like`, {
+        method: "GET",
+        headers: {
+          Authorization: token,
+        },
       })
-      .then((res) => console.log(res));
+        .then((res) => {
+          if (res === 500) {
+            return res.json();
+          } else {
+            return setBlogLiked(false);
+          }
+        })
+        .then((res) => {
+          if (res && res.error && res.error === "blog already liked!") {
+            setBlogLiked(true);
+          } else {
+            return;
+          }
+        })
+        .then(() => {
+          return fetch(
+            `http://localhost:5000/blogs/${match.params.bid}/unlike`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: token,
+              },
+            }
+          );
+        })
+        .then(() => {})
+        .catch((err) => console.log(err));
+    }
+  }, [token]);
+
+  useEffect(() => {
+    if (blogLiked) {
+      likeBtnRef.current.style.color = "var(--green)";
+    } else {
+      likeBtnRef.current.style.color = "#ccc";
+    }
+  }, [blogLiked]);
+
+  const likeBlog = () => {
+    if (!blogLiked) {
+      fetch(`http://localhost:5000/blogs/${match.params.bid}/like`, {
+        method: "GET",
+        headers: {
+          Authorization: token,
+        },
+      })
+        .then((res) => {
+          if (res.status === 401) {
+            throw new Error("please login to continue");
+          } else {
+            return res.json();
+          }
+        })
+        .then((res) => {
+          setBlog({ ...blog, claps: blog.claps + 1 });
+          setBlogLiked(true);
+        })
+        .catch((err) => {
+          if (err.message === "please login to continue") {
+            createMessage(err.message, setMessages, "error");
+            setRegisterModal(!registerModal);
+          }
+        });
+    } else {
+      fetch(`http://localhost:5000/blogs/${match.params.bid}/unlike`, {
+        method: "GET",
+        headers: {
+          Authorization: token,
+        },
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          setBlog({ ...blog, claps: blog.claps - 1 });
+          setBlogLiked(false);
+        })
+        .catch((err) => {
+          console.log("why am i running?");
+          console.log(err);
+        });
+    }
   };
   return (
     <div>
-      {blog.claps ? (
-        <button
-          onClick={likeBlog}
-          style={{
-            position: "fixed",
-            top: "50%",
-            right: "10px",
-            zIndex: "99",
-            border: "none",
-            outline: "none",
-            cursor: "pointer",
-            transform: "translateY(-50%)",
-          }}
-        >
-          <i class='far fa-thumbs-up hover'></i>
-          {blog.claps}
-        </button>
-      ) : null}
+      <span
+        onClick={likeBlog}
+        style={{
+          position: "fixed",
+          top: "50%",
+          right: "10px",
+          zIndex: "99",
+          border: "none",
+          outline: "none",
+          cursor: "pointer",
+          transform: "translateY(-50%)",
+        }}
+      >
+        <i className='far fa-thumbs-up hover fa-2x' ref={likeBtnRef}></i>
+        {blog.claps}
+      </span>
       <section
         style={{
           minHeight: "54vmax",

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export const LoginContext = React.createContext();
 
@@ -7,6 +7,7 @@ export const LoginContext = React.createContext();
 const LoginThemeContext = ({ children }) => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [userData, setUserData] = useState({});
+
   return (
     <LoginContext.Provider
       value={{ loggedIn, setLoggedIn, userData, setUserData }}

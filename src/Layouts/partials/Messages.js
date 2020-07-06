@@ -44,7 +44,7 @@ const ContainerStyle = styled.div`
 const GlobalMessage = ({ items }) => {
   const { messages, setMessages } = useContext(MessagesContext);
   useEffect(() => {
-    setMessages([{ msg: "dont mind me!" }]);
+    setMessages([...messages, { msg: "dont mind me!" }]);
   }, []);
   useEffect(() => {
     const messageDivs = document.querySelectorAll(".pause-on-hover");
