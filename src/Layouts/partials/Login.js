@@ -2,9 +2,12 @@ import React, { useState, useContext, useEffect, useRef } from "react";
 import { isEmail } from "../../helpers/validators";
 import { MessagesContext } from "../../Contexts/GlobalMessages";
 import { LoginContext } from "../../Contexts/loginContext";
+import { ModalTheme } from "../../Contexts/modalContext";
+import createMessage from "../../helpers/createMessage";
 
 const Login = ({ toggleFormFields }) => {
   const { setLoggedIn, setUserData } = useContext(LoginContext);
+  const { setRegisterModal } = useContext(ModalTheme);
   const loginRef = useRef();
   const { messages, setMessages } = useContext(MessagesContext);
   const [loading, setLoading] = useState(false);
@@ -49,21 +52,23 @@ const Login = ({ toggleFormFields }) => {
       })
         .then((res) => {
           if (res.status.toString()[0] === "4") {
-            return setMessages([
-              { msg: "ERROR: password or email is incorrect!" },
-            ]);
+            throw new Error("password or email is incorrect!");
           }
           return res.json();
         })
         .then((data) => {
+          if (!data) throw new Error("something went wrong");
           // login is success, do something with the token
           console.log(data);
           setMessages([{ msg: `SUCCESS: successfully logged in!` }]);
           sessionStorage.setItem("TOKEN", data.token);
+          sessionStorage.setItem("SESSION_USER", JSON.stringify(data.user));
           setLoggedIn(true);
           setUserData(data.user);
+          setRegisterModal(false);
         })
         .catch((err) => {
+          createMessage(err.message, setMessages, "error");
           console.log(err);
         })
         .finally(() => setLoading(false));

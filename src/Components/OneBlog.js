@@ -1,22 +1,30 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import PickRandomColor from "../helpers/randomColor";
+//helpers
+// import PickRandomColor from "../helpers/randomColor";
+import createMessage from "../helpers/createMessage";
+//skeletons
+// import LoadingComment from "../Skeletons/LoadingComment";
+//sub-components
+import Comments from "./OneBlog/Comments";
+import NewComment from "./OneBlog/NewComment";
 import Paginate from "../Components/Paginate";
-import LoadingComment from "../Skeletons/LoadingComment";
-import { Link } from "react-router-dom";
 //contexts
 import { ModalTheme } from "../Contexts/modalContext";
 import { MessagesContext } from "../Contexts/GlobalMessages";
-// import {LoginContext} from "../Contexts/loginContext";
-//helpers
-import createMessage from "../helpers/createMessage";
+import { LoginContext } from "../Contexts/loginContext";
 
-const color = PickRandomColor();
-console.log(color);
+// const color = PickRandomColor();
+// console.log(color);
 
 const OneBlog = ({ match }) => {
   const likeBtnRef = useRef();
   const { registerModal, setRegisterModal } = useContext(ModalTheme);
-  // const {loggedIn} = useContext(LoginContext);
+  const {
+    loggedIn,
+    setLoggedIn,
+    logOut,
+    userData: { name: username, avatar },
+  } = useContext(LoginContext);
   const { setMessages } = useContext(MessagesContext);
   const [blogLiked, setBlogLiked] = useState(false);
   const [blog, setBlog] = useState({
@@ -26,78 +34,109 @@ const OneBlog = ({ match }) => {
     claps: 0,
     comments: [],
   });
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [currentPage, setCurrentPage] = useState(1);
   const [token, setToken] = useState(null);
+  const [commentsExist, setCommentsExist] = useState("");
   useEffect(() => {
     const mytoken = sessionStorage.getItem("TOKEN");
     setToken(mytoken);
     fetch(`http://localhost:5000/blogs/${match.params.bid}`)
-      .then((res) => res.json())
       .then((res) => {
-        console.log(res);
+        return res.json();
+      })
+      .then((res) => {
+        if (!res.comments.length) {
+          setCommentsExist("no comments...");
+        }
+        console.log("the res us", res);
         setBlog(res);
       })
       .catch((err) => console.log(err));
   }, []);
 
+  const setComments = (comment) => {
+    setBlog({ ...blog, comments: [...blog.comments, comment] });
+  };
+
   useEffect(() => {
+    if (loggedIn) {
+      const mytoken = sessionStorage.getItem("TOKEN");
+      setToken(mytoken);
+    }
     if (token !== null) {
+      const bearer = token !== null ? "Bearer " + token : token;
       //user is logged in and like request can be sent
       fetch(`http://localhost:5000/blogs/${match.params.bid}/like`, {
         method: "GET",
         headers: {
-          Authorization: token,
+          Authorization: bearer,
+          "Content-Type": "application/json",
         },
       })
         .then((res) => {
-          if (res === 500) {
+          if (res.status === 500) {
             return res.json();
           } else {
             return setBlogLiked(false);
           }
         })
         .then((res) => {
-          if (res && res.error && res.error === "blog already liked!") {
-            setBlogLiked(true);
+          // if (res && res.error && res.error === "blog already liked!") {
+          if (res && res.error) {
+            throw new Error(res.error);
           } else {
             return;
           }
         })
         .then(() => {
+          const bearer = token !== null ? "Bearer " + token : token;
           return fetch(
             `http://localhost:5000/blogs/${match.params.bid}/unlike`,
             {
               method: "GET",
               headers: {
-                Authorization: token,
+                Authorization: bearer,
+                "Content-Type": "application/json",
               },
             }
           );
         })
         .then(() => {})
-        .catch((err) => console.log(err));
+        .catch((err) => {
+          if (err.message === "blog already liked!") {
+            setBlogLiked(true);
+          } else if (err.message === "jwt expired") {
+            logOut();
+          }
+        });
     }
-  }, [token]);
+  }, [token, loggedIn]);
 
   useEffect(() => {
     if (blogLiked) {
       likeBtnRef.current.style.color = "var(--green)";
+      likeBtnRef.current.classList.add("popAnimation");
     } else {
       likeBtnRef.current.style.color = "#ccc";
+      likeBtnRef.current.classList.remove("popAnimation");
     }
   }, [blogLiked]);
 
   const likeBlog = () => {
+    const bearer = token !== null ? "Bearer " + token : token;
     if (!blogLiked) {
       fetch(`http://localhost:5000/blogs/${match.params.bid}/like`, {
         method: "GET",
         headers: {
-          Authorization: token,
+          Authorization: bearer,
+          "Content-Type": "application/json",
         },
       })
         .then((res) => {
           if (res.status === 401) {
             throw new Error("please login to continue");
+          } else if (res.status === 408) {
+            throw new Error("session has expired");
           } else {
             return res.json();
           }
@@ -110,23 +149,41 @@ const OneBlog = ({ match }) => {
           if (err.message === "please login to continue") {
             createMessage(err.message, setMessages, "error");
             setRegisterModal(!registerModal);
+          } else if (err.message === "session has expired") {
+            createMessage(err.message, setMessages, "error");
+            setRegisterModal(!registerModal);
+            logOut();
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
           }
+          // createMessage(err.message, setMessages);
         });
     } else {
       fetch(`http://localhost:5000/blogs/${match.params.bid}/unlike`, {
         method: "GET",
         headers: {
-          Authorization: token,
+          Authorization: bearer,
+          "Content-Type": "application/json",
         },
       })
-        .then((res) => res.json())
+        .then((res) => {
+          if (res.status === 408) {
+            throw new Error("session has expired");
+          }
+        })
         .then((res) => {
           setBlog({ ...blog, claps: blog.claps - 1 });
           setBlogLiked(false);
         })
         .catch((err) => {
-          console.log("why am i running?");
-          console.log(err);
+          if (err.message === "session has expired") {
+            logOut();
+            setTimeout(() => {
+              window.location.reload();
+            }, 2000);
+          }
+          createMessage(err.message, setMessages);
         });
     }
   };
@@ -145,8 +202,20 @@ const OneBlog = ({ match }) => {
           transform: "translateY(-50%)",
         }}
       >
-        <i className='far fa-thumbs-up hover fa-2x' ref={likeBtnRef}></i>
+        <i
+          className='far fa-thumbs-up hover fa-2x'
+          title={blogLiked ? "dislike" : "like"}
+          ref={likeBtnRef}
+        ></i>
         {blog.claps}
+        {/* <br />
+        {blogLiked ? (
+          <kbd style={{ color: "#ccc" }}>
+            <p>you and</p>
+            <p>{`${blog.claps - 1} others`}</p>
+            <p>liked this.</p>
+          </kbd>
+        ) : null} */}
       </span>
       <section
         style={{
@@ -171,89 +240,12 @@ const OneBlog = ({ match }) => {
         <p>{blog.body}</p>
       </section>
 
+      <NewComment
+        user={{ name: username, avatar, blogRef: match.params.bid, token }}
+        setComments={setComments}
+      />
       <p>comments:</p>
-      <ul>
-        {blog.comments.length ? (
-          blog.comments.map((comment) => {
-            return (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  marginBottom: "30px",
-                }}
-              >
-                <div
-                  className='image-section'
-                  style={{
-                    height: "50px",
-                    width: "50px",
-                    borderRadius: "50%",
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    fontWeight: "bolder",
-                    // flex: 1,
-                    textTransform: "uppercase",
-                    color: "#fff",
-                    fontSize: "40px",
-                    backgroundImage: comment.avatar
-                      ? `url(${comment.avatar})`
-                      : `linear-gradient(${color},${color})`,
-                    border: "3px solid var(--purple)",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    backgroundRepeat: "no-repeat",
-                  }}
-                >
-                  {comment.commentator[0]}
-                </div>
-                <div
-                  style={{
-                    flex: 10,
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  <span>{comment.commentator} says:</span>
-                  <div
-                    style={{
-                      backgroundColor: "#fff",
-                      padding: "10px",
-                      borderRadius: "5px",
-                      marginLeft: "10px",
-                      position: "relative",
-                    }}
-                  >
-                    {comment.body}
-                    <div
-                      style={{
-                        borderTopLeftRadius: "12px",
-                        borderBottomLeftRadius: "12px",
-                        borderBottomRightRadius: "12px",
-                        borderTopRightRadius: "12px",
-                        backgroundColor: "#afa5a5",
-                        display: "flex",
-                        position: "absolute",
-                        padding: "4px",
-                        color: "white",
-                        bottom: "0px",
-                        right: "0px",
-                        transform: "translate(50%, 50%)",
-                      }}
-                    >
-                      <i class='far fa-thumbs-up'></i>
-                      <span>{comment.upvotes}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          <LoadingComment />
-        )}
-      </ul>
+      <Comments comments={blog.comments} isExists={commentsExist} />
       <Paginate blogId={match.params.bid} itemCount={blog.comments.length} />
     </div>
   );

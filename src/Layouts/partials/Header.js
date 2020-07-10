@@ -9,7 +9,9 @@ import { LoginContext } from "../../Contexts/loginContext";
 import { ModalTheme } from "../../Contexts/modalContext";
 
 export const Header = () => {
-  const { loggedIn, setLoggedIn, userData } = useContext(LoginContext);
+  const { loggedIn, setLoggedIn, userData, setUserData, logOut } = useContext(
+    LoginContext
+  );
   const { registerModal, setRegisterModal } = useContext(ModalTheme);
   // const [register, setRegister] = useState(false);
   const [logoutModal, setLogoutModal] = useState(false);
@@ -137,8 +139,7 @@ export const Header = () => {
                 >
                   <button
                     onClick={() => {
-                      setLoggedIn(false);
-                      sessionStorage.removeItem("TOKEN");
+                      logOut();
                       setLogoutModal(!logoutModal);
                     }}
                   >
