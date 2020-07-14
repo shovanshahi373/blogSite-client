@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
 import { Header as HeaderStyle } from "../../Styles/headerStyle";
+// import Link from "next/link";
 import ModalStyle from "../../Styles/ModalStyle";
 import Register from "./Register";
 import Login from "./Login";
@@ -67,7 +68,9 @@ export const Header = () => {
         ) : null}
         <nav>
           <ul>
-            <li data-list='home'>home</li>
+            <li data-list='home'>
+              <a href='/blogs'>Home</a>
+            </li>
             {!loggedIn ? (
               <>
                 <li
@@ -87,9 +90,14 @@ export const Header = () => {
                 </li>
               </>
             ) : (
-              <li data-list='logout' onClick={() => logoutPrompt()}>
-                Logout
-              </li>
+              <>
+                <li data-list='logout' onClick={() => logoutPrompt()}>
+                  Logout
+                </li>
+                <li data-list='profile'>
+                  <a href={`/${userData.name}/profile`}>Profile</a>
+                </li>
+              </>
             )}
             <li data-list='about'>about</li>
           </ul>

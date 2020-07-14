@@ -33,6 +33,7 @@ a {
   height: inherit;
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 .App {
@@ -64,6 +65,12 @@ a {
   animation-duration: 0.3s;
   animation-timing-function: ease-in;
   animation-fill-mode: forwards;
+}
+
+.disabled {
+  pointer-events: none;
+  cursor: wait;
+  background-blend-mode: overlay;
 }
 
 @keyframes phaseIn {
@@ -166,5 +173,11 @@ a {
   }
   100% {
     transform: scale(1);
+  }
+}
+
+@keyframes loadingChannel {
+  to {
+    background-position: 100% 0%;
   }
 }

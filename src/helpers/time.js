@@ -8,7 +8,7 @@ export const getRelativeTime = (givenTime) => {
       : timeElapsed <= 60 * 60
       ? Math.floor(timeElapsed / 60) + " minutes ago"
       : timeElapsed <= 24 * 60 * 60
-      ? Math.floor((timeElapsed / (24 * 60 * 60)) * 24) + " hours ago"
+      ? Math.floor(timeElapsed / (60 * 60)) + " hours ago"
       : givenTime.split("T")[0];
   return formattedTime;
 };

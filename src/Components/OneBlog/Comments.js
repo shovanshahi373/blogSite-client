@@ -63,12 +63,14 @@ const Comments = ({ comments, isExists }) => {
                         color: "#ccc",
                       }}
                     >
-                      {/* {comment.createdAt
-                      ? new Date(comment.createdAt).toDateString()
-                      : ""} */}
-                      {comment.createdAt
-                        ? getRelativeTime(comment.createdAt)
-                        : ""}
+                      {comment.createdAt ? (
+                        <>
+                          <i class='far fa-clock'></i>
+                          {getRelativeTime(comment.createdAt)}
+                        </>
+                      ) : (
+                        ""
+                      )}
                     </span>
                   </div>
                   <div
