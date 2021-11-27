@@ -39,7 +39,7 @@ const NewComment = ({ user, setComments }) => {
     console.log("the token is", user.token);
 
     const bearer = token !== null ? `Bearer ${token}` : token;
-    console.log("the fucking bearer is", bearer);
+    console.log("the bearer is", bearer);
     fetch(`http://localhost:5000/blogs/${user.blogRef}/comment`, {
       method: "POST",
       headers: {
@@ -81,7 +81,7 @@ const NewComment = ({ user, setComments }) => {
     <CommentBoxStyle avatar={user.avatar}>
       {openInput ? (
         <div>
-          <div className='image-container'>{user.name[0]}</div>
+          <div className="image-container">{user.name[0]}</div>
           <div>
             <h3>{user.name}</h3>
             <textarea
@@ -98,7 +98,7 @@ const NewComment = ({ user, setComments }) => {
           </div>
         </div>
       ) : (
-        <button className='writeComment' onClick={toggleComment}>
+        <button className="writeComment" onClick={toggleComment}>
           write a comment
         </button>
       )}

@@ -1,18 +1,19 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
-import Auth from "./Auths/auth";
+import { useLoginContext } from "./Contexts/loginContext";
 
 const ProtectedRoute = ({ component: Component, ...rest }) => {
-  const auth = new Auth();
-  // localStorage.console.log(auth);
+  const { loggedIn } = useLoginContext();
+  console.log({ loggedIn }, "from protected route");
   return (
     <Route
       {...rest}
       render={(props) => {
-        if (auth.loginStatus()) {
+        if (loggedIn) {
           return <Component {...props} />;
         } else {
-          return <Redirect to={"/"} />;
+          return <p>loading...</p>;
+          // return <Redirect to={"/"} />;
         }
       }}
     />

@@ -10,22 +10,18 @@ import NewComment from "./OneBlog/NewComment";
 import Paginate from "../Components/Paginate";
 //contexts
 import { ModalTheme } from "../Contexts/modalContext";
-import { MessagesContext } from "../Contexts/GlobalMessages";
-import { LoginContext } from "../Contexts/loginContext";
-
-// const color = PickRandomColor();
-// console.log(color);
+import { useMessageContext } from "../Contexts/GlobalMessages";
+import { useLoginContext } from "../Contexts/loginContext";
 
 const OneBlog = ({ match }) => {
   const likeBtnRef = useRef();
   const { registerModal, setRegisterModal } = useContext(ModalTheme);
   const {
     loggedIn,
-    setLoggedIn,
     logOut,
     userData: { name: username, avatar },
-  } = useContext(LoginContext);
-  const { setMessages } = useContext(MessagesContext);
+  } = useLoginContext();
+  const { setMessages } = useMessageContext();
   const [blogLiked, setBlogLiked] = useState(false);
   const [blog, setBlog] = useState({
     author: "",
@@ -36,19 +32,15 @@ const OneBlog = ({ match }) => {
   });
   // const [currentPage, setCurrentPage] = useState(1);
   const [token, setToken] = useState(null);
-  const [commentsExist, setCommentsExist] = useState("");
+  const [commentsExist, setCommentsExist] = useState(null);
+
   useEffect(() => {
     const mytoken = sessionStorage.getItem("TOKEN");
     setToken(mytoken);
     fetch(`http://localhost:5000/blogs/${match.params.bid}`)
+      .then((res) => res.json())
       .then((res) => {
-        return res.json();
-      })
-      .then((res) => {
-        if (!res.comments.length) {
-          setCommentsExist("no comments...");
-        }
-        console.log("the res us", res);
+        setCommentsExist(!res.comments.length);
         setBlog(res);
       })
       .catch((err) => console.log(err));
@@ -65,8 +57,7 @@ const OneBlog = ({ match }) => {
     }
     if (token !== null) {
       const bearer = token !== null ? "Bearer " + token : token;
-      //user is logged in and like request can be sent
-      fetch(`http://localhost:5000/blogs/${match.params.bid}/like`, {
+      fetch(`http://localhost:5000/blogs/${match.params.bid}/checklike`, {
         method: "GET",
         headers: {
           Authorization: bearer,
@@ -74,40 +65,14 @@ const OneBlog = ({ match }) => {
         },
       })
         .then((res) => {
-          if (res.status === 500) {
-            return res.json();
-          } else {
-            return setBlogLiked(false);
-          }
+          if (res.status > 400) throw new Error("something went wrong");
+          res.json();
         })
-        .then((res) => {
-          // if (res && res.error && res.error === "blog already liked!") {
-          if (res && res.error) {
-            throw new Error(res.error);
-          } else {
-            return;
-          }
+        .then((data) => {
+          setBlogLiked(data.liked);
         })
-        .then(() => {
-          const bearer = token !== null ? "Bearer " + token : token;
-          return fetch(
-            `http://localhost:5000/blogs/${match.params.bid}/unlike`,
-            {
-              method: "GET",
-              headers: {
-                Authorization: bearer,
-                "Content-Type": "application/json",
-              },
-            }
-          );
-        })
-        .then(() => {})
         .catch((err) => {
-          if (err.message === "blog already liked!") {
-            setBlogLiked(true);
-          } else if (err.message === "jwt expired") {
-            logOut();
-          }
+          createMessage(err.message, setMessages, "error");
         });
     }
   }, [token, loggedIn]);
@@ -203,7 +168,7 @@ const OneBlog = ({ match }) => {
         }}
       >
         <i
-          className='far fa-thumbs-up hover fa-2x'
+          className="far fa-thumbs-up hover fa-2x"
           title={blogLiked ? "dislike" : "like"}
           ref={likeBtnRef}
         ></i>
@@ -244,7 +209,7 @@ const OneBlog = ({ match }) => {
         user={{ name: username, avatar, blogRef: match.params.bid, token }}
         setComments={setComments}
       />
-      <p>comments:</p>
+      <p>{blog.comments.length} comments</p>
       <Comments comments={blog.comments} isExists={commentsExist} />
       <Paginate blogId={match.params.bid} itemCount={blog.comments.length} />
     </div>

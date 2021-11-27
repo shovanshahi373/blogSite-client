@@ -1,16 +1,17 @@
-import React, { useContext, useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ProfileStyle from "../../Styles/ProfileStyle";
 import axios from "axios";
 
-import { LoginContext } from "../../Contexts/loginContext";
+import { useLoginContext } from "../../Contexts/loginContext";
 
 //sub-components
 import Banner from "./Components/Banner";
 import ProfileImage from "./Components/ProfileImage";
 
 const Profile = () => {
+  console.log("do i even run?");
   const saveChangeButtonRef = useRef();
-  const { userData, setUserData } = useContext(LoginContext);
+  const { userData, setUserData } = useLoginContext();
   const [image, setImage] = useState("");
   const [profile, setProfile] = useState("");
   const [imageBlob, setImageBlog] = useState("");
@@ -29,11 +30,15 @@ const Profile = () => {
   }, [image, profile]);
 
   const handleChangedFields = () => {
+    console.log("image is ", image);
     saveChangeButtonRef.current.classList.add("disabled");
     const token = "Bearer " + sessionStorage.getItem("TOKEN");
     const file = new FormData();
     file.append("cover", imageBlob, Date.now() + "B");
     file.append("profile", profileBlob, Date.now() + "P");
+
+    // file.append("cover", image, Date.now() + "B");
+    // file.append("profile", profile, Date.now() + "P");
     for (let pair of file.entries()) {
       console.log(pair[0], pair[1]);
     }
@@ -58,35 +63,35 @@ const Profile = () => {
     <ProfileStyle cover={image} profile={profile}>
       {/* // <ProfileStyle cover={userData.backgroundImage} profile={userData.avatar}> */}
       <Banner setImage={setImage} setImageBlog={setImageBlog} />
-      <section className='info-section'>
+      <section className="info-section">
         <ProfileImage setProfile={setProfile} setProfileBlob={setProfileBlob} />
-        <ul className='social-media-links'>
+        <ul className="social-media-links">
           <li>
-            <i className='fab fa-facebook'></i>
+            <i className="fab fa-facebook"></i>
           </li>
           <li>
-            <i className='fab fa-instagram'></i>
+            <i className="fab fa-instagram"></i>
           </li>
           <li>
-            <i className='fab fa-twitter'></i>
+            <i className="fab fa-twitter"></i>
           </li>
           <li>
-            <i className='fab fa-reddit'></i>
+            <i className="fab fa-reddit"></i>
           </li>
         </ul>
       </section>
-      <section className='description'>
+      <section className="description">
         <span>blogs written: {userData.blogCount}</span>
         <span>total likes: {"12K"}</span>
       </section>
       <main></main>
       <button
         ref={saveChangeButtonRef}
-        className='save-changes'
+        className="save-changes"
         onClick={handleChangedFields}
       >
         save changes
-        <i className='far fa-check-circle' />
+        <i className="far fa-check-circle" />
       </button>
     </ProfileStyle>
   );

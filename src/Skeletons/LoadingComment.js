@@ -36,9 +36,10 @@ const Line = styled.div((props) => ({
 const LoadingComment = ({ quantity = 5 }) => {
   return Array(quantity)
     .fill("loaders")
-    .map((loader) => {
+    .map((loader, i) => {
       return (
         <div
+          key={i}
           style={{
             display: "flex",
             marginBottom: "20px",
@@ -53,9 +54,9 @@ const LoadingComment = ({ quantity = 5 }) => {
               marginLeft: "10px",
             }}
           >
-            <Line className='shine' breadth={10} length={25} />
-            <Line className='shine' breadth={20} length={100} />
-            <Line className='shine' breadth={10} length={15} />
+            <Line className="shine" breadth={10} length={25} />
+            <Line className="shine" breadth={20} length={100} />
+            <Line className="shine" breadth={10} length={15} />
           </div>
         </div>
       );

@@ -1,9 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 
 export const MessagesContext = React.createContext();
 
 const MessageThemeContext = ({ children }) => {
-  const [messages, setMessages] = useState([]);
+  const [messages, updateMessages] = useState([]);
+
+  const setMessages = (msgs) => {
+    updateMessages((prev) => [...prev, ...msgs]);
+  };
+
+  useEffect(() => {
+    const messageDivs = document.querySelectorAll(".pause-on-hover");
+    console.log("on inital :", messageDivs);
+    if (messageDivs && messageDivs.length) {
+      messageDivs[messageDivs.length - 1].addEventListener(
+        "animationend",
+        () => {
+          messageDivs.forEach((msg) => {
+            console.log(msg);
+            // msg.remove();
+          });
+          setMessages([]);
+        }
+      );
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    setMessages([{ msg: "Welcome to the blogsite!" }]);
+  }, []);
+
   return (
     <MessagesContext.Provider value={{ messages, setMessages }}>
       {children}
@@ -11,24 +37,6 @@ const MessageThemeContext = ({ children }) => {
   );
 };
 
-export default MessageThemeContext;
+export const useMessageContext = () => useContext(MessagesContext);
 
-// useEffect(() => {
-//   setMessages([{ msg: "dont mind me!" }]);
-// }, []);
-// useEffect(() => {
-//   const messageDivs = document.querySelectorAll(".pause-on-hover");
-//   console.log("on inital :", messageDivs);
-//   if (messageDivs && messageDivs.length) {
-//     messageDivs[messageDivs.length - 1].addEventListener(
-//       "animationend",
-//       () => {
-//         messageDivs.forEach((msg) => {
-//           console.log(msg);
-//           msg.remove();
-//         });
-//         setMessages([]);
-//       }
-//     );
-//   }
-// }, [messages]);
+export default MessageThemeContext;

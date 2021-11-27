@@ -1,6 +1,5 @@
 import React, { useState, useContext } from "react";
 import { Header as HeaderStyle } from "../../Styles/headerStyle";
-// import Link from "next/link";
 import ModalStyle from "../../Styles/ModalStyle";
 import Register from "./Register";
 import Login from "./Login";
@@ -10,9 +9,8 @@ import { LoginContext } from "../../Contexts/loginContext";
 import { ModalTheme } from "../../Contexts/modalContext";
 
 export const Header = () => {
-  const { loggedIn, setLoggedIn, userData, setUserData, logOut } = useContext(
-    LoginContext
-  );
+  const { loggedIn, setLoggedIn, userData, setUserData, logOut } =
+    useContext(LoginContext);
   const { registerModal, setRegisterModal } = useContext(ModalTheme);
   // const [register, setRegister] = useState(false);
   const [logoutModal, setLogoutModal] = useState(false);
@@ -49,13 +47,7 @@ export const Header = () => {
       <HeaderStyle>
         <div>logo</div>
         {registerModal ? (
-          <ModalStyle
-            className='myModal'
-            onClick={(e) => {
-              outsideModalClick(e);
-              // setRegister(!register);
-            }}
-          >
+          <ModalStyle className="myModal" onClick={outsideModalClick}>
             <div>
               <Register
                 toggleFormFields={toggleFormFields}
@@ -68,22 +60,22 @@ export const Header = () => {
         ) : null}
         <nav>
           <ul>
-            <li data-list='home'>
-              <a href='/blogs'>Home</a>
+            <li data-list="home">
+              <a href="/blogs">Home</a>
             </li>
             {!loggedIn ? (
               <>
                 <li
-                  data-list='register'
+                  data-list="register"
                   onClick={() => setRegisterModal(!registerModal)}
                 >
                   Register
                 </li>
                 <li
-                  data-list='login'
+                  data-list="login"
                   onClick={() => {
                     setRegisterModal(!registerModal);
-                    toggleFormFields();
+                    setTimeout(toggleFormFields, 0);
                   }}
                 >
                   Login
@@ -91,15 +83,15 @@ export const Header = () => {
               </>
             ) : (
               <>
-                <li data-list='logout' onClick={() => logoutPrompt()}>
+                <li data-list="logout" onClick={() => logoutPrompt()}>
                   Logout
                 </li>
-                <li data-list='profile'>
+                <li data-list="profile">
                   <a href={`/${userData.name}/profile`}>Profile</a>
                 </li>
               </>
             )}
-            <li data-list='about'>about</li>
+            <li data-list="about">about</li>
           </ul>
         </nav>
         {loggedIn ? (
@@ -137,7 +129,7 @@ export const Header = () => {
             // className='myModal'
             // onClick={(e) => outsideModalClick(e)}
             >
-              <section className='logout-prompt'>
+              <section className="logout-prompt">
                 <p>
                   you are about to log out.
                   <br /> continue?

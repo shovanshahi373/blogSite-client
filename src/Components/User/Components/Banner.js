@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 const Banner = ({ setImage, setImageBlog }) => {
   const [loading, setLoading] = useState(false);
   const mountFile = (e) => {
+    console.log(e.target.files[0]);
     setImageBlog(e.target.files[0]);
     setLoading(true);
     const reader = new FileReader();
@@ -16,11 +17,11 @@ const Banner = ({ setImage, setImageBlog }) => {
   };
 
   return (
-    <section className='banner'>
+    <section className="banner">
       {loading ? (
-        <div className='banner-loading' />
+        <div className="banner-loading" />
       ) : (
-        <input type='file' accept='image/*' onChange={(e) => mountFile(e)} />
+        <input type="file" accept="image/*" onChange={mountFile} />
       )}
     </section>
   );

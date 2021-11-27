@@ -6,11 +6,15 @@ const AllBlogs = () => {
   const [blogs, setBlogs] = useState([]);
   useEffect(() => {
     fetch("http://localhost:5000/blogs")
-      .then((res) => res.json())
+      .then((res) => {
+        if (res.status > 400) throw new Error(res.err);
+        return res.json();
+      })
       .then((data) => {
         console.log(data);
         setBlogs(data.blogs);
-      });
+      })
+      .catch((err) => console.log(err));
   }, []);
   const style = {
     display: "flex",
@@ -20,17 +24,13 @@ const AllBlogs = () => {
   return (
     <>
       <h1>hello world</h1>
-      {blogs.length ? (
-        <section style={style}>
-          {blogs.map((blog) => (
-            <BlogCard data={blog} />
-          ))}
-        </section>
-      ) : (
-        <section style={style}>
+      <section style={style}>
+        {blogs.length ? (
+          blogs.map((blog) => <BlogCard data={blog} />)
+        ) : (
           <CardSkeleton number={10} />
-        </section>
-      )}
+        )}
+      </section>
     </>
   );
 };

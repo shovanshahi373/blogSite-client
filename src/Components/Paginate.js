@@ -15,7 +15,7 @@ const Paginate = ({ blogId, itemCount = 0, itemsPerPage = 2 }) => {
         .fill("page")
         .map((page, index) => {
           return (
-            <Link to={`/blogs/${blogId}?page=${index + 1}`}>
+            <Link key={index} to={`/blogs/${blogId}?page=${index + 1}`}>
               <span
                 style={{
                   border: "1px solid var(--purple)",

@@ -1,6 +1,6 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect } from "react";
 import styled, { css, keyframes } from "styled-components";
-import { MessagesContext } from "../../Contexts/GlobalMessages";
+import { useMessageContext } from "../../Contexts/GlobalMessages";
 
 const messageIn = keyframes`
   0% {
@@ -22,7 +22,8 @@ const GlobalMessageStyle = styled.div((props) => ({
   maxWidth: "60vw",
   transform: "translate(0%,-500%)",
   transition: "transform 1s",
-  backgroundColor: props.color,
+  backgroundColor: `hsl(${props.color},100%,70%)`,
+  color: `hsl(${props.textColor},100%,50%)`,
   animationName: "messageIn",
   cursor: "pointer",
   display: "flex",
@@ -41,49 +42,34 @@ const ContainerStyle = styled.div`
   right: 1%;
 `;
 
-const GlobalMessage = ({ items }) => {
-  const { messages, setMessages } = useContext(MessagesContext);
-  useEffect(() => {
-    setMessages([...messages, { msg: "dont mind me!" }]);
-  }, []);
-  useEffect(() => {
-    const messageDivs = document.querySelectorAll(".pause-on-hover");
-    console.log("on inital :", messageDivs);
-    if (messageDivs && messageDivs.length) {
-      messageDivs[messageDivs.length - 1].addEventListener(
-        "animationend",
-        () => {
-          messageDivs.forEach((msg) => {
-            console.log(msg);
-            // msg.remove();
-          });
-          setMessages([]);
-        }
-      );
-    }
-  }, [messages]);
+const GlobalMessage = () => {
+  const { messages } = useMessageContext();
+
   return (
     <ContainerStyle>
       {messages.map(({ msg, timer = 3 }, i) => {
         const color = msg.includes("SUCCESS:")
-          ? "var(--green)"
+          ? 150
           : msg.includes("ERROR:")
-          ? "var(--red)"
-          : "var(--blue)";
+          ? 30
+          : 245;
         const mymsg = msg.includes(":") ? msg.split(":")[1].trim() : msg;
+        const textColor = color + 180;
         return (
-          <GlobalMessageStyle
-            className='pause-on-hover'
-            timer={timer}
-            color={color}
-            delay={i}
-          >
-            {mymsg}
-            <i
-              style={{
-                marginLeft: "10px",
-              }}
-              className={`
+          <React.Fragment key={i}>
+            <GlobalMessageStyle
+              className="pause-on-hover"
+              timer={timer}
+              textColor={textColor}
+              color={color}
+              delay={i}
+            >
+              {mymsg}
+              <i
+                style={{
+                  marginLeft: "10px",
+                }}
+                className={`
             ${
               msg.includes("SUCCESS:")
                 ? "far fa-check-circle"
@@ -91,8 +77,9 @@ const GlobalMessage = ({ items }) => {
                 ? "far fa-times-circle"
                 : "fas fa-info-circle"
             }`}
-            ></i>
-          </GlobalMessageStyle>
+              ></i>
+            </GlobalMessageStyle>
+          </React.Fragment>
         );
       })}
     </ContainerStyle>

@@ -50,16 +50,10 @@ const Login = ({ toggleFormFields }) => {
           persistToken: remember,
         }),
       })
-        .then((res) => {
-          if (res.status.toString()[0] === "4") {
-            throw new Error("password or email is incorrect!");
-          }
-          return res.json();
-        })
+        .then((res) => res.json())
         .then((data) => {
+          console.log("the login data is returned,,", data);
           if (!data) throw new Error("something went wrong");
-          // login is success, do something with the token
-          console.log(data);
           setMessages([{ msg: `SUCCESS: successfully logged in!` }]);
           sessionStorage.setItem("TOKEN", data.token);
           sessionStorage.setItem("SESSION_USER", JSON.stringify(data.user));
@@ -75,8 +69,8 @@ const Login = ({ toggleFormFields }) => {
     }
   };
   return (
-    <div className='register-container'>
-      <section class='form-info-section'>
+    <div className="register-container">
+      <section class="form-info-section">
         <h3>
           Create an account today and have base access to members only features.
         </h3>
@@ -84,22 +78,22 @@ const Login = ({ toggleFormFields }) => {
         <button onClick={toggleFormFields}>Register</button>
       </section>
       <form>
-        <label htmlFor='login-email'>
+        <label htmlFor="login-email">
           <input
-            type='text'
-            name='email'
-            id='login-email'
+            type="text"
+            name="email"
+            id="login-email"
             required
             onChange={(e) => updateLoginData(e)}
           />
           <span>email</span>
         </label>
 
-        <label htmlFor='login-password'>
+        <label htmlFor="login-password">
           <input
-            type='password'
-            name='password'
-            id='login-password'
+            type="password"
+            name="password"
+            id="login-password"
             required
             onChange={(e) => updateLoginData(e)}
           />
@@ -110,14 +104,14 @@ const Login = ({ toggleFormFields }) => {
         </label>
 
         <div
-          className='remember-me-box'
+          className="remember-me-box"
           style={{ margin: "10px 0", cursor: "pointer" }}
           onClick={() => setRemember(!remember)}
         >
           {remember ? (
-            <i className='fas fa-check-square' />
+            <i className="fas fa-check-square" />
           ) : (
-            <i className='fas fa-square' />
+            <i className="fas fa-square" />
           )}
           {" Remember me"}
         </div>
@@ -130,7 +124,7 @@ const Login = ({ toggleFormFields }) => {
           {"forgot password? "}
           <span>
             <a
-              href='#'
+              href="#"
               style={{
                 display: "inline-block",
                 textDecoration: "underline",
@@ -142,7 +136,7 @@ const Login = ({ toggleFormFields }) => {
           .
         </div>
 
-        <button type='submit' ref={loginRef} onClick={(e) => loginHandler(e)}>
+        <button type="submit" ref={loginRef} onClick={loginHandler}>
           login
         </button>
       </form>

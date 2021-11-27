@@ -1,8 +1,7 @@
 import React from "react";
 import LoadingComment from "../../Skeletons/LoadingComment";
-import PickRandomColor from "../../helpers/randomColor";
+import getColor from "../../helpers/randomColor";
 import { getRelativeTime } from "../../helpers/time";
-const color = PickRandomColor();
 
 const Comments = ({ comments, isExists }) => {
   return (
@@ -10,6 +9,9 @@ const Comments = ({ comments, isExists }) => {
       <ul>
         {comments.length ? (
           comments.map((comment) => {
+            const color = getColor(comment.commentator);
+            const bg = `hsl(${color},100%,70%)`;
+            const textcolor = `hsl(${color + 180},100%,50%)`;
             return (
               <div
                 key={comment.id}
@@ -20,7 +22,7 @@ const Comments = ({ comments, isExists }) => {
                 }}
               >
                 <div
-                  className='image-section'
+                  className="image-section"
                   style={{
                     height: "50px",
                     width: "50px",
@@ -31,11 +33,11 @@ const Comments = ({ comments, isExists }) => {
                     fontWeight: "bolder",
                     // flex: 1,
                     textTransform: "uppercase",
-                    color: "#fff",
+                    color: textcolor,
                     fontSize: "40px",
                     backgroundImage: comment.avatar
                       ? `url(${comment.avatar})`
-                      : `linear-gradient(${color},${color})`,
+                      : `linear-gradient(${bg},${bg})`,
                     border: "3px solid var(--purple)",
                     backgroundSize: "cover",
                     backgroundPosition: "center",
@@ -65,7 +67,7 @@ const Comments = ({ comments, isExists }) => {
                     >
                       {comment.createdAt ? (
                         <>
-                          <i class='far fa-clock'></i>
+                          <i className="far fa-clock"></i>
                           {getRelativeTime(comment.createdAt)}
                         </>
                       ) : (
@@ -99,7 +101,7 @@ const Comments = ({ comments, isExists }) => {
                         transform: "translate(50%, 50%)",
                       }}
                     >
-                      <i className='far fa-thumbs-up'></i>
+                      <i className="far fa-thumbs-up"></i>
                       <span>{comment.upvotes}</span>
                     </div>
                   </div>
